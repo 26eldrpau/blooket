@@ -2,7 +2,7 @@
   "title": "goldquest",
   "description": "gold quest cheat",
   "author": "Paul",
-  "url": "",
+  "url": "https://github.com/26eldrpau/blooket/raw/main/blooket.json",
   "scripts": [
     "https://github.com/26eldrpau/blooket/raw/main/setup.js",
 		"https://github.com/26eldrpau/blooket/raw/main/index.js"
