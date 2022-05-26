@@ -1,6 +1,6 @@
 if (!blooketUtility.prefs.test) {
   blooketUtility.prefs.test = {
-    title: "Gold Quest Cheat",
+    title: "Gold Quest",
     description: "Gold Quest Cheat",
     value: {
       testBool: {
