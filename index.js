@@ -1,30 +1,70 @@
 if (blooketUtility.prefs.goldquest.value) {
   const cachedTimeout = window.setTimeout;
-  window.setTimeout = function () {
-    if (
-      (arguments[0].toString() ===
-        `function(){document.addEventListener("mousedown",t.handleClick,!1)}` &&
-        arguments[1] === 3250) ||
-      (arguments[0].toString() ===
-        `function(){var e=null,n=45,a=Object(w.a)(t.state.unlockedBlook);if(t.canvasParentRef){"Rare"===a?(e=new ae(t.canvasParentRef.offsetWidth/2,t.canvasParentRef.offsetHeight/2,t.p5),n=55):"Epic"===a?(e=new oe(t.canvasParentRef.offsetWidth/2,t.canvasParentRef.offsetHeight/2,t.p5),n=75):"Legendary"===a?(e=new re(t.canvasParentRef.offsetWidth/2,t.canvasParentRef.offsetHeight/2,t.p5),n=110):"Chroma"===a?(e=new se(t.canvasParentRef.offsetWidth/2,t.canvasParentRef.offsetHeight/2,t.p5),n=125):e=new ne(t.canvasParentRef.offsetWidth/2,t.canvasParentRef.offsetHeight/2,t.p5);for(var o=0;o<n;o++)e.addParticle();t.particleSystems.push(e)}}` &&
-        arguments[1] === 2000)
-    ) {
-      arguments[1] = 0;
+  window.setTimeout = function ( () => { // anon function, makes defined variables not go into global scope
+    
+    class RNGManip {
+        #callback;
+        #spoof;
+        #spoofedRandom;
+        #oldRandom;
+        constructor() {
+           this.#oldRandom = Math.random;
+           this.#spoofedRandom = 0;
+           this.#callback = null; // call this function when a random number is generated or spoofed
+           this.#spoof = false;
+    
+           Math.random = () => {
+               var rand = this.#spoof ? this.#spoofedRandom : this.#oldRandom();
+               if(typeof this.#callback === "function") this.#callback(rand);
+               return rand;
+           }
+        }
+        setSpoofedRandom(random) {
+           this.#spoofedRandom = random;
+        }
+        setCallback(callback) {
+           if(typeof callback !== 'function') throw new Error('Callback must be a function');
+           this.#callback = callback;
+        }
+        setEnabled(enabled) {
+           if(typeof enabled !== 'boolean') throw new Error('called setEnabled with non-boolean value');
+           this.#spoof = enabled;
+       }
     }
-    return cachedTimeout(...arguments);
-  };
-  const styleElement = document.createElement("style");
-  styleElement.innerHTML =
-    `
-		.styles__mysteryBoxContainerOpen___39AUK-camelCase {
-			animation: styles__open___3b-ns-camelCase 0s linear;
-		}
-		.styles__unlockedBlook___OyCN3-camelCase {
-			animation: styles__fadeInCenter___1y_-9-camelCase 0.5s linear 0.25s forwards;
-		}
-		.styles__rarityText___12Y8w-camelCase {
-			animation: styles__fadeInCenter___1y_-9-camelCase 0.5s linear 0.5s forwards
-		}
-		`;
-  document.body.appendChild(styleElement);
-}
+    
+    const rngManip = new RNGManip();
+    const iframe = document.createElement('iframe');
+    iframe.style.border = "none";
+    var frame = document.body.appendChild(iframe);
+    var contentWindow = frame.contentWindow;
+    var codes = contentWindow.prompt("Enter your RNG codes, if you dont have any, get them from the generator on the GitHub page.");
+    /*
+    Codes Example:
+
+   [
+      {
+        "triggerElement": "[class^='styles__feedbackContainer___'] > div",
+        "numbers": [0.4267, 0.4267, 0.5123]
+      }
+   ]
+
+    */
+   codes = JSON.parse(codes)
+   document.body.removeChild(frame);
+   setInterval( () => {
+      codes.forEach( (code) => {
+         var triggerElem = document.querySelector(code.triggerElement);
+         const numbers = code.numbers;
+         var index = 0;
+         if(triggerElem !== null){
+            rngManip.setEnabled(true);
+            rngManip.setSpoofedRandom(numbers[index++]);
+            rngManip.setCallback( () => {
+               if(index == numbers.length) return rngManip.setEnabled(false);
+               rngManip.setSpoofedRandom(numbers[index++]);
+            });
+            triggerElem.click();
+         }
+      })
+   }, 250)
+})()
