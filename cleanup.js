@@ -1,1 +1,1 @@
-delete blooketUtility.prefs.test;
+delete blooketUtility.prefs.goldquest;
